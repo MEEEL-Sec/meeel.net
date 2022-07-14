@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+ <head>
+	<title>meeel.net</title>
+	<link rel="stylesheet" type="text/css" href="../css/styles.css"/>
+</head>
+ <body>
+<div class="banner">
+<pre><h1>
++-+-+-+-+-+-+-+-+-+
+|m|e|e|e|l|.|n|e|t|
++-+-+-+-+-+-+-+-+-+
+</pre></h1>
+   <p>low-bandwith retreat<p>
+</div><br><br>
+
+<h2>Improper Indexing Leads To Auth Bypass</h2>
+I figured that for my first writeup post, I'd write about an issue I found in January 2022. This bug is relatively simple for the priority it was given so it really stuck with me. The program is private.<br><br>
+
+<h3>Breakdown</h3>
+While observing the application and administrator functionality within the application I noticed two details.
+<ul>
+<li>There are invitation IDs that users can share in the form of a link to invite trusted individuals to their administration teams</li>
+<li>The links containing the invitation parameters never expire and are randomly generated</li>
+</ul>
+First thing I thought to myself was to Google dork, I had previously been using Google dorking as a large portion of my manual recon anyway, so it felt like the natural thing to do. Loaded up Google and used a very simple query. "<i>site:-.com inurl:invitations-param</i>" and there they were, multiple pages of exposed invitations that anyone with an internet connection could abuse to gain admin privileges in user environments and do whatever they please.
+<h3>Cause</h3>
+Almost every site on the internet has a robots.txt file, this file contains a list of rules for search engine "robots" that they must abide by in order to hide their sensitive data and endpoints they wouldn't want anyone abusing, think of it as an implementation of security through obscurity. A search engine robot reads the file and knows where it isn't allowed to crawl around and poke things. this site even has a robots.txt file, take a look <a href="https://meeel.net/robots.txt">robots.txt</a>.<br><br>
+
+The bug was caused by a lack of two lines in the robots.txt, just needed to add<br><br>
+User-Agent: *<br>
+Disallow:/admin/?invitations-param<br><br>
+Might be even better to just disallow everything in admin.<br><br>
+
+This bug scored me a P2 on Bugcrowd, it's really insane how some of these bugs can be found on Google in a matter of minutes. Google dorking can go a very long way, if you see something exposed in a url that may need to be kept private, it never hurts to do some dorking. Here's a cheat sheet from SANS to get started <a href="https://www.sans.org/posters/google-hacking-and-defense-cheat-sheet">Cheat Sheet</a>
+ </body>
+</html>
